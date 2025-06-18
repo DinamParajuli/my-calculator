@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simple Calculator</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #282c34;
+    font-family: Arial, sans-serif;
+  }
+  .calculator {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #000;
+    width: 320px;
+  }
+  .display {
+    background: #000;
+    color: #0f0;
+    font-size: 2rem;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: right;
+    margin-bottom: 15px;
+    user-select: none;
+    min-height: 50px;
+    overflow-x: auto;
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  button {
+    padding: 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    background: #333;
+    color: #eee;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  button:hover {
+    background: #555;
+  }
+  button.operator {
+    background: #ff9500;
+    color: white;
+  }
+  button.operator:hover {
+    background: #ffa733;
+  }
+  button.equal {
+    grid-column: span 2;
+    background: #007aff;
+    color: white;
+  }
+  button.equal:hover {
+    background: #3399ff;
+  }
+  button.clear {
+    background: #ff3b30;
+    color: white;
+  }
+  button.clear:hover {
+    background: #ff6259;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div class="display" id="display">0</div>
+  <div class="buttons">
+    <button class="clear" id="clear">C</button>
+    <button class="operator" data-op="/">÷</button>
+    <button class="operator" data-op="*">×</button>
+    <button class="operator" data-op="-">−</button>
+    
+    <button data-num="7">7</button>
+    <button data-num="8">8</button>
+    <button data-num="9">9</button>
+    <button class="operator" data-op="+">+</button>
+    
+    <button data-num="4">4</button>
+    <button data-num="5">5</button>
+    <button data-num="6">6</button>
+    <button class="equal" id="equal">=</button>
+    
+    <button data-num="1">1</button>
+    <button data-num="2">2</button>
+    <button data-num="3">3</button>
+    <button data-num="0" style="grid-column: span 2;">0</button>
+    <button data-num=".">.</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const buttons = document.querySelectorAll('button');
+  
+  let currentInput = '';
+  
+  function updateDisplay() {
+    display.textContent = currentInput || '0';
+  }
+  
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const num = button.getAttribute('data-num');
+      const op = button.getAttribute('data-op');
+      
+      if(button.id === 'clear') {
+        currentInput = '';
+        updateDisplay();
+        return;
+      }
+      
+      if(button.id === 'equal') {
+        try {
+          // Use eval carefully: this is simple calculator, so it's OK here
+          let result = eval(currentInput);
+          // Fix floating point issues and limit decimal places
+          if(typeof result === 'number') {
+            result = Math.round(result * 1e10) / 1e10;
+          }
+          currentInput = result.toString();
+          updateDisplay();
+        } catch {
+          currentInput = 'Error';
+          updateDisplay();
+          currentInput = '';
+        }
+        return;
+      }
+      
+      if(num !== null) {
+        // Prevent multiple dots in a number
+        if(num === '.' && currentInput.endsWith('.')) return;
+        currentInput += num;
+      } else if(op !== null) {
+        // Prevent two operators in a row
+        if(currentInput === '') return;
+        const lastChar = currentInput.slice(-1);
+        if('+-*/'.includes(lastChar)) {
+          currentInput = currentInput.slice(0, -1) + op;
+        } else {
+          currentInput += op;
+        }
+      }
+      
+      updateDisplay();
+    });
+  });
+</script>
+
+</body>
+</html>
